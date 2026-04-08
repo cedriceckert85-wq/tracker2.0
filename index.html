@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cali Hub">
+<meta name="theme-color" content="#0e0e14">
+<title>Calisthenics Hub</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%230e0e14' width='180' height='180' rx='40'/><text x='90' y='120' text-anchor='middle' font-size='100'>🏋️</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(145deg,#0a0a0f 0%,#111118 50%,#0d0d14 100%);color:#e8e6e3;font-family:-apple-system,system-ui,sans-serif;max-width:520px;margin:0 auto;padding-bottom:90px;padding-top:env(safe-area-inset-top);overscroll-behavior:none}
+.header{padding:28px 20px 16px;background:}
+.title{font-size:26px;font-weight:800;background:linear-gradient(135deg,#ff4d4f,#ff7a45);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px}
+.subtitle{font-size:13px;color:#666;letter-spacing:1px;margin-top:4px}
+.schedule{display:flex;gap:4px;padding:0 20px 16px}
+.sday{flex:1;text-align:center;padding:8px 0;border-radius:10px;min-width:44px}
+.sday-label{font-size:10px;color:#888;font-weight:600}
+.sday-val{font-size:15px;font-weight:700;margin-top:2px}
+.tabs{display:flex;gap:4px;padding:0 20px;margin-bottom:16px}
+.tab{flex:1;padding:10px 0;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;transition:all 0.2s;font-family:inherit}
+.tab-active{background:linear-gradient(135deg,#ff4d4f,#ff7a45);color:#fff}
+.tab-inactive{background:#ffffff08;color:#888}
+.badge{margin-left:6px;background:#52c41a;color:#fff;border-radius:99px;padding:1px 6px;font-size:10px}
+.content{padding:0 20px}
+.day-card{margin-bottom:8px;border-radius:14px;overflow:hidden;background:#ffffff06;border:1px solid #ffffff0a}
+.day-header{width:100%;border:none;background:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;color:#e8e6e3;font-family:inherit;text-align:left}
+.day-title{font-weight:700;font-size:15px}
+.day-focus{font-size:11px;color:#888;margin-top:2px}
+.day-count{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.ex-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #ffffff08;cursor:pointer;transition:opacity 0.2s}
+.ex-done{opacity:0.4}
+.check{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;border:2px solid #444}
+.check-on{border:none;background:linear-gradient(135deg,#52c41a,#73d13d)}
+.ex-name{font-weight:600;font-size:14px}
+.ex-name-done{text-decoration:line-through}
+.ex-muscle{font-size:11px;color:#888}
+.ex-reps{font-size:12px;font-weight:600;color:#ff7a45;white-space:nowrap}
+.ex-arrow{font-size:16px;color:#555;cursor:pointer;transition:transform 0.2s}
+.ex-arrow-open{transform:rotate(180deg)}
+.ex-desc{padding:6px 12px 12px 34px;font-size:12px;color:#aaa;line-height:1.5;background:#ffffff04;border-radius:8px;margin-bottom:4px}
+.tip{margin-top:14px;padding:14px;border-radius:12px;font-size:12px;line-height:1.6}
+.supp-card{margin-bottom:8px;border-radius:14px;overflow:hidden;transition:all 0.2s}
+.supp-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.supp-check{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+.supp-emoji{font-size:20px}
+.supp-name{font-weight:700;font-size:14px}
+.supp-dose{font-size:11px;color:#888}
+.stars{letter-spacing:2px;font-size:14px}
+.star-on{opacity:1}
+.star-off{opacity:0.2}
+.supp-detail{padding:0 16px 14px;font-size:13px;line-height:1.6}
+.supp-box{padding:12px;border-radius:10px;background:#ffffff06}
+.supp-box+.supp-box{margin-top:8px}
+.supp-box-label{font-weight:700;font-size:11px;margin-bottom:4px}
+.sched-block{margin-top:14px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(250,173,20,0.06),rgba(250,173,20,0.02));border:1px solid rgba(250,173,20,0.13)}
+.sched-title{font-size:11px;font-weight:700;color:#faad14;margin-bottom:10px;letter-spacing:0.5px}
+.sched-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.sched-row+.sched-row{border-top:1px solid #ffffff08}
+.sched-time{font-size:13px;font-weight:700}
+.sched-items{font-size:12px;color:#ccc}
+.nutr-hero{padding:20px;border-radius:16px;background:linear-gradient(135deg,rgba(255,77,79,0.07),rgba(255,122,69,0.03));border:1px solid rgba(255,77,79,0.13);margin-bottom:16px;text-align:center}
+.nutr-big{font-size:48px;font-weight:800;margin:8px 0 4px;background:linear-gradient(135deg,#af3739,#ca7350);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.macro-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.macro-card{padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;text-align:center}
+.macro-label{font-size:10px;color:#888;font-weight:700;letter-spacing:0.5px}
+.macro-val{font-size:24px;font-weight:800;margin:4px 0 2px}
+.macro-sub{font-size:10px;color:#666}
+.calc-box{padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;margin-bottom:12px}
+.calc-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ffffff06;font-size:13px}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="title"></div>
+<div</div>
+</div>
+
+<div class="schedule" id="schedule"></div>
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+
+<script>
+const DAYS=[{name:"Tag A — Drücken & Bauch",emoji:"🔥",focus:"Brust / Trizeps / Schultern / Bauch",exercises:[{name:"Liegestütze (normal)",sets:3,reps:"8–10",muscle:"Brust / Trizeps",desc:"Hände schulterbreit, Körper gerade wie ein Brett. Ziel: 3×10 sauber, dann Pause kürzer machen"},{name:"Liegestütze (Knie)",sets:2,reps:"10–15",muscle:"Brust / Trizeps (Finisher)",desc:"Direkt nach den normalen — auf die Knie gehen und weitermachen bis der Muskel richtig brennt"},{name:"Dips am Stuhl",sets:3,reps:"8–12",muscle:"Trizeps / Brust",desc:"Hände auf Stuhlkante hinter dir, Hintern frei, runter und hochdrücken. Beine angewinkelt = leichter"},{name:"Schulterdrücken an der Wand",sets:2,reps:"5–8",muscle:"Schultern",desc:"Füße an die Wand, Hände am Boden, Kopf Richtung Boden senken. Knie auf dem Boden = leichtere Version"},{name:"Plank (Unterarmstütz)",sets:3,reps:"20–40 Sek",muscle:"ganzer Bauch",desc:"Auf Unterarme und Zehenspitzen stützen, Körper gerade, Bauch anspannen. Aufhören wenn Hüfte durchhängt"},{name:"Knieheben (liegend)",sets:2,reps:"12–15",muscle:"unterer Bauch",desc:"Auf den Rücken legen, Beine angewinkelt zur Brust heben und langsam senken"}]},{name:"Tag B — Ziehen & Bauch",emoji:"💪",focus:"Rücken / Bizeps / Bauch",exercises:[{name:"Klimmzüge (mit Hilfe)",sets:3,reps:"so viele wie gehen",muscle:"Rücken / Bizeps",desc:"An einer Stange hängen, hochziehen bis Kinn über der Stange. Gummiband oder Stuhl als Hilfe ist OK"},{name:"Klimmzüge Untergriff (mit Hilfe)",sets:3,reps:"so viele wie gehen",muscle:"Bizeps / Rücken",desc:"Wie Klimmzüge aber Handflächen zu dir gedreht — trainiert mehr den Bizeps"},{name:"Rudern am Tisch",sets:3,reps:"10–15",muscle:"mittlerer Rücken",desc:"Unter einen stabilen Tisch legen, Tischkante greifen und deine Brust zum Tisch ziehen"},{name:"Tür-Rudern",sets:3,reps:"10–15",muscle:"Rücken / Bizeps",desc:"Offene Tür, beidseitig die Klinke greifen, zurücklehnen und dich zur Tür ziehen"},{name:"Superman (liegend)",sets:3,reps:"12–15",muscle:"unterer Rücken",desc:"Auf den Bauch legen, Arme und Beine gleichzeitig vom Boden anheben und 2 Sek halten"},{name:"Seitlicher Plank",sets:3,reps:"20–30 Sek / Seite",muscle:"seitlicher Bauch",desc:"Auf einem Unterarm seitlich abstützen, Hüfte oben halten, Körper bildet eine Linie"},{name:"Bergsteiger",sets:3,reps:"20 (10 pro Seite)",muscle:"Bauch / Ausdauer",desc:"In Liegestütz-Position abwechselnd ein Knie zur Brust ziehen — wie auf der Stelle laufen"}]},{name:"Tag C — Beine & Bauch",emoji:"🦵",focus:"Oberschenkel / Po / Waden / Bauch",exercises:[{name:"Kniebeugen",sets:4,reps:"15–20",muscle:"Oberschenkel / Po",desc:"Füße schulterbreit, Hintern nach hinten-unten als würdest du dich auf einen Stuhl setzen"},{name:"Ausfallschritte",sets:3,reps:"10 pro Seite",muscle:"Oberschenkel / Po",desc:"Großer Schritt nach vorne, hinteres Knie fast zum Boden, wieder hochdrücken"},{name:"Aufsteiger (Stuhl/Bank)",sets:3,reps:"10 pro Seite",muscle:"Oberschenkel / Po",desc:"Auf einen Stuhl oder eine Bank steigen, ein Bein nach dem anderen, langsam und kontrolliert"},{name:"Beckenheben (Brücke)",sets:3,reps:"15–20",muscle:"Po / hinterer Oberschenkel",desc:"Auf den Rücken legen, Füße aufstellen, Hüfte so hoch wie möglich nach oben drücken"},{name:"Wadenheben",sets:4,reps:"20–25",muscle:"Waden",desc:"Auf eine Treppenstufe stellen, auf die Zehenspitzen hochdrücken und langsam wieder runter"},{name:"Wandsitzen",sets:3,reps:"30–60 Sek",muscle:"Oberschenkel",desc:"Rücken an die Wand, Knie auf 90 Grad, halten als würdest du auf einem unsichtbaren Stuhl sitzen"},{name:"Bauchpresse (Crunch)",sets:3,reps:"15–20",muscle:"oberer Bauch",desc:"Auf den Rücken legen, Knie anwinkeln, Schultern vom Boden heben und Bauch anspannen"}]}];
+
+const SCHEDULE=[{d:"Mo",w:"A",c:"#ff4d4f"},{d:"Di",w:"B",c:"#1890ff"},{d:"Mi",w:"—",c:"#555"},{d:"Do",w:"A",c:"#ff4d4f"},{d:"Fr",w:"C",c:"#52c41a"},{d:"Sa",w:"B",c:"#1890ff"},{d:"So",w:"—",c:"#555"}];
+
+const SUPPS=[
+{name:"Creatin",dose:"5g Pulver (1 Scoop) / Tag",when:"Nach dem Training mit Wasser. An trainingsfreien Tagen: morgens oder mittags. Immer gleiche Uhrzeit.",what:"Gibt deinen Muskeln mehr Energie für kurze, harte Belastungen. Du bist stärker, hast mehr Power und siehst voller aus weil Wasser in die Muskeln gezogen wird. DAS Supplement Nr. 1.",worth:5,emoji:"⚡"},
+{name:"Omega 3 (Fischöl)",dose:"2 Kapseln (2000mg) zum Mittag",when:"Zum Mittagessen — braucht Fett für die Aufnahme.",what:"Gut für Gelenke, Haut-Elastizität und Regeneration. Wirkt entzündungshemmend. Hilft der Haut sich beim Aufbau besser zu dehnen.",worth:4,emoji:"🐟"},
+{name:"Beta Alanin",dose:"2 Kapseln (2500mg) / Tag",when:"Zum Mittag- oder Abendessen. 2500mg reicht als Beginner. Kribbeln ist normal.",what:"Hilft bei langen Sätzen mit vielen Wiederholungen gegen das Brennen im Muskel. Bei kurzen Sätzen weniger Nutzen.",worth:2,emoji:"🔋"},
+{name:"Magnesium",dose:"3 Kapseln (300mg) abends",when:"Zum Abendessen — hilft beim Einschlafen und entspannt die Muskeln.",what:"Wichtig für Muskelkontraktionen, Nerven und Schlaf. Bisglycinat ist die beste Form.",worth:5,emoji:"🌙"},
+{name:"L-Tyrosin",dose:"2 Kapseln (1000mg) morgens",when:"Morgens nüchtern, 15–20 Min vor dem Frühstück. Wirkt in 30–60 Min, hält 2–3h.",what:"Baut Dopamin auf → besserer Fokus und Motivation. Besonders gut wenn du gestresst oder müde bist.",worth:3,emoji:"🧠"},
+{name:"Ashwagandha",dose:"1–2 Kapseln (300–600mg) abends",when:"Zum Abendessen, jeden Tag. Wirkt erst nach 4–8 Wochen. Alle 8 Wochen 2–4 Wochen Pause.",what:"Senkt Cortisol. Besserer Schlaf, bessere Regeneration, kann Testosteron leicht pushen.",worth:4,emoji:"🌿"}
+];
+
+const CAL={bmr:1796,tdee:2425,bulk:2650,protein:140,carbs:340,fats:78};
+
+let state={tab:"plan",checkedEx:{},checkedSupp:{},expandedSupp:null,openDay:0,showDesc:{}};
+
+function save(){try{localStorage.setItem("cali",JSON.stringify({checkedEx:state.checkedEx,checkedSupp:state.checkedSupp}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem("cali"));if(d){state.checkedEx=d.checkedEx||{};state.checkedSupp=d.checkedSupp||{}}}catch(e){}}
+load();
+
+function stars(v){return [1,2,3,4,5].map(i=>`<span class="${i<=v?'star-on':'star-off'}">★</span>`).join("")}
+
+function renderSchedule(){
+document.getElementById("schedule").innerHTML=SCHEDULE.map(s=>`<div class="sday" style="background:${s.w!=="—"?s.c+"15":"#ffffff06"};border:1px solid ${s.w!=="—"?s.c+"30":"#ffffff08"}"><div class="sday-label">${s.d}</div><div class="sday-val" style="color:${s.c}">${s.w}</div></div>`).join("")}
+
+function renderTabs(){
+const sc=Object.values(state.checkedSupp).filter(Boolean).length;
+document.getElementById("tabs").innerHTML=[
+{id:"plan",label:"Training",icon:"🏋️"},
+{id:"supps",label:"Supps",icon:"💊"},
+{id:"nutrition",label:"Ernährung",icon:"🍗"}
+].map(t=>`<button class="tab ${state.tab===t.id?'tab-active':'tab-inactive'}" onclick="setTab('${t.id}')">${t.icon} ${t.label}${t.id==="supps"&&sc>0?`<span class="badge">${sc}/6</span>`:""}</button>`).join("")}
+
+function setTab(t){state.tab=t;renderTabs();renderContent()}
+
+function toggleEx(k){state.checkedEx[k]=!state.checkedEx[k];save();renderContent()}
+function toggleSupp(k){state.checkedSupp[k]=!state.checkedSupp[k];save();renderContent()}
+function toggleDesc(k){state.showDesc[k]=!state.showDesc[k];renderContent()}
+function setOpenDay(d){state.openDay=d;renderContent()}
+function toggleExpandSupp(i){state.expandedSupp=state.expandedSupp===i?null:i;renderContent()}
+
+function renderContent(){
+
+const el=document.getElementById("content");
+if(state.tab==="plan") renderPlan(el);
+else if(state.tab==="supps") renderSupps(el);
+else renderNutrition(el);
+}
+
+function renderPlan(el){
+let h=`<p style="font-size:12px;color:#666;margin:0 0 12px;line-height:1.5">5x/Woche · Beginner-freundlich · Tippe auf eine Übung für die Erklärung ▾</p>`;
+DAYS.forEach((day,di)=>{
+const isOpen=state.openDay===di;
+const done=day.exercises.filter((_,ei)=>state.checkedEx[di+"-"+ei]).length;
+const total=day.exercises.length;
+h+=`<div class="day-card"><button class="day-header" onclick="setOpenDay(${isOpen?-1:di})"><div><div class="day-title">${day.emoji} ${day.name}</div><div class="day-focus">${day.focus}</div></div><div class="day-count" style="background:${done===total?"#52c41a20":"#ffffff08"};color:${done===total?"#52c41a":"#888"}">${done}/${total}</div></button>`;
+if(isOpen){
+h+=`<div style="padding:0 16px 14px">`;
+day.exercises.forEach((ex,ei)=>{
+const k=di+"-"+ei;
+const d=state.checkedEx[k];
+const dOpen=state.showDesc[k];
+h+=`<div style="border-top:1px solid #ffffff08"><div class="ex-row ${d?'ex-done':''}" style="opacity:${d?0.4:1}"><div class="check ${d?'check-on':''}" onclick="event.stopPropagation();toggleEx('${k}')">${d?"✓":""}</div><div style="flex:1" onclick="toggleDesc('${k}')"><div class="ex-name ${d?'ex-name-done':''}">${ex.name}</div><div class="ex-muscle">${ex.muscle}</div></div><div class="ex-reps">${ex.sets}×${ex.reps}</div><div class="ex-arrow ${dOpen?'ex-arrow-open':''}" onclick="toggleDesc('${k}')">▾</div></div>`;
+if(dOpen) h+=`<div class="ex-desc">💡 ${ex.desc}</div>`;
+h+=`</div>`;
+});
+h+=`</div>`}
+h+=`</div>`;
+});
+h+=`<div class="tip" style="background:linear-gradient(135deg,#ff4d4f10,#ff7a4510);border:1px solid #ff4d4f20;color:#ccc"><strong style="color:#ff7a45">Beginner-Tipp:</strong> Schaffst du keine normale Liegestütze? Mach die Knie-Version bis du 15 Stück schaffst, dann wechsel auf normale. Gleiches Prinzip überall: Wenn du die Ziel-Reps schaffst → schwerere Variante nehmen.</div>`;
+el.innerHTML=h;
+}
+
+function renderSupps(el){
+let h=`<p style="font-size:12px;color:#666;margin:0 0 12px;line-height:1.5">Checkbox = genommen heute · Tap auf Karte = Details</p>`;
+SUPPS.forEach((s,i)=>{
+const checked=state.checkedSupp[i];
+const expanded=state.expandedSupp===i;
+h+=`<div class="supp-card" style="background:${checked?"#52c41a08":"#ffffff06"};border:1px solid ${checked?"#52c41a25":"#ffffff0a"}"><div class="supp-header" onclick="toggleExpandSupp(${i})"><div class="supp-check" onclick="event.stopPropagation();toggleSupp(${i})" style="border:${checked?"none":"2px solid #444"};background:${checked?"linear-gradient(135deg,#52c41a,#73d13d)":"transparent"}">${checked?"✓":""}</div><span class="supp-emoji">${s.emoji}</span><div style="flex:1"><div class="supp-name">${s.name}</div><div class="supp-dose">${s.dose}</div></div><span class="stars">${stars(s.worth)}</span></div>`;
+if(expanded){
+h+=`<div class="supp-detail"><div class="supp-box"><div class="supp-box-label" style="color:#ff7a45">WAS ES MACHT</div><div style="color:#ccc">${s.what}</div></div><div class="supp-box"><div class="supp-box-label" style="color:#1890ff">WANN NEHMEN</div><div style="color:#ccc">${s.when}</div></div></div>`;
+}
+h+=`</div>`;
+});
+// Daily schedule
+h+=`<div class="sched-block"><div class="sched-title">TÄGLICHER EINNAHMEPLAN</div>`;
+[{t:"🌅 Morgens nüchtern",i:"2x L-Tyrosin",c:"#faad14"},{t:"🍽️ Mittag",i:"2x Omega 3 + 2x Beta Alanin",c:"#52c41a"},{t:"🏋️ Nach Training",i:"5g Creatin mit Wasser",c:"#1890ff"},{t:"🌙 Abendessen",i:"3x Magnesium + 1x Ashwagandha",c:"#ff4d4f"}].forEach((s,i)=>{
+h+=`<div class="sched-row"><span class="sched-time" style="color:${s.c}">${s.t}</span><span class="sched-items">${s.i}</span></div>`;
+});
+h+=`</div>`;
+// Ranking
+h+=`<div style="margin-top:14px;padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;font-size:12px;color:#999;line-height:1.6"><strong style="color:#e8e6e3">Ranking:</strong><br>⚡ Creatin & 🌙 Magnesium → Pflicht (5/5)<br>🐟 Omega 3 & 🌿 Ashwagandha → sehr sinnvoll (4/5)<br>🧠 L-Tyrosin → nett, kein Muss (3/5)<br>🔋 Beta Alanin → für Beginner kaum Nutzen (2/5)<br><span style="color:#666;margin-top:6px;display:block">Starte erstmal mit Creatin + Magnesium + Omega 3. Den Rest später dazunehmen.</span></div>`;
+el.innerHTML=h;
+}
+
+function renderNutrition(el){
+let h=`<div class="nutr-hero"><div style="font-size:11px;color:#888;letter-spacing:1px;font-weight:700">TÄGLICHES ZIEL (LEAN BULK)</div><div class="nutr-big">${CAL.bulk}</div><div style="font-size:13px;color:#888">kcal / Tag</div></div>`;
+h+=`<div class="macro-grid">`;
+[{l:"Eiweiß",v:CAL.protein+"g",c:"#ff4d4f",s:"2g/kg"},{l:"Kohlenhydrate",v:CAL.carbs+"g",c:"#ff7a45",s:"~54%"},{l:"Fett",v:CAL.fats+"g",c:"#faad14",s:"~26%"}].forEach(m=>{
+h+=`<div class="macro-card"><div class="macro-label">${m.l}</div><div class="macro-val" style="color:${m.c}">${m.v}</div><div class="macro-sub">${m.s}</div></div>`;
+});
+h+=`</div>`;
+h+=`<div class="calc-box"><div style="font-size:11px;color:#888;font-weight:700;margin-bottom:8px">BERECHNUNG</div>`;
+[{l:"Grundumsatz (BMR)",v:CAL.bmr+" kcal"},{l:"Gesamtumsatz (TDEE)",v:CAL.tdee+" kcal"},{l:"Überschuss (+225)",v:CAL.bulk+" kcal"}].forEach(r=>{
+h+=`<div class="calc-row"><span style="color:#999">${r.l}</span><span style="font-weight:700">${r.v}</span></div>`;
+});
+h+=`</div>`;
+h+=`<div style="padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(24,144,255,0.06),rgba(24,144,255,0.02));border:1px solid rgba(24,144,255,0.13);font-size:12px;color:#ccc;line-height:1.6"><strong style="color:#1890ff">Aufbau ohne Dehnungsstreifen:</strong> Surplus bewusst kleiner gehalten (+225 statt +400). Ziel: max 0.3kg/Woche — langsam aber sauber aufbauen. Dazu hilft: viel Wasser trinken (3L+), Omega 3 für die Haut, und Haut regelmäßig eincremen (Bodylotion mit Vitamin E oder Kokosöl).</div>`;
+el.innerHTML=h;
+}
+
+renderSchedule();
+renderTabs();
+renderContent();
+</script>
+</body>
+</html>
