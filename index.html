@@ -1,203 +1,772 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Cali Hub">
-<meta name="theme-color" content="#0e0e14">
-<title>Calisthenics Hub</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%230e0e14' width='180' height='180' rx='40'/><text x='90' y='120' text-anchor='middle' font-size='100'>🏋️</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:linear-gradient(145deg,#0a0a0f 0%,#111118 50%,#0d0d14 100%);color:#e8e6e3;font-family:-apple-system,system-ui,sans-serif;max-width:520px;margin:0 auto;padding-bottom:90px;padding-top:env(safe-area-inset-top);overscroll-behavior:none}
-.header{padding:28px 20px 16px;background:}
-.title{font-size:26px;font-weight:800;background:linear-gradient(135deg,#ff4d4f,#ff7a45);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px}
-.subtitle{font-size:13px;color:#666;letter-spacing:1px;margin-top:4px}
-.schedule{display:flex;gap:4px;padding:0 20px 16px}
-.sday{flex:1;text-align:center;padding:8px 0;border-radius:10px;min-width:44px}
-.sday-label{font-size:10px;color:#888;font-weight:600}
-.sday-val{font-size:15px;font-weight:700;margin-top:2px}
-.tabs{display:flex;gap:4px;padding:0 20px;margin-bottom:16px}
-.tab{flex:1;padding:10px 0;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:13px;transition:all 0.2s;font-family:inherit}
-.tab-active{background:linear-gradient(135deg,#ff4d4f,#ff7a45);color:#fff}
-.tab-inactive{background:#ffffff08;color:#888}
-.badge{margin-left:6px;background:#52c41a;color:#fff;border-radius:99px;padding:1px 6px;font-size:10px}
-.content{padding:0 20px}
-.day-card{margin-bottom:8px;border-radius:14px;overflow:hidden;background:#ffffff06;border:1px solid #ffffff0a}
-.day-header{width:100%;border:none;background:none;cursor:pointer;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;color:#e8e6e3;font-family:inherit;text-align:left}
-.day-title{font-weight:700;font-size:15px}
-.day-focus{font-size:11px;color:#888;margin-top:2px}
-.day-count{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
-.ex-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #ffffff08;cursor:pointer;transition:opacity 0.2s}
-.ex-done{opacity:0.4}
-.check{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;border:2px solid #444}
-.check-on{border:none;background:linear-gradient(135deg,#52c41a,#73d13d)}
-.ex-name{font-weight:600;font-size:14px}
-.ex-name-done{text-decoration:line-through}
-.ex-muscle{font-size:11px;color:#888}
-.ex-reps{font-size:12px;font-weight:600;color:#ff7a45;white-space:nowrap}
-.ex-arrow{font-size:16px;color:#555;cursor:pointer;transition:transform 0.2s}
-.ex-arrow-open{transform:rotate(180deg)}
-.ex-desc{padding:6px 12px 12px 34px;font-size:12px;color:#aaa;line-height:1.5;background:#ffffff04;border-radius:8px;margin-bottom:4px}
-.tip{margin-top:14px;padding:14px;border-radius:12px;font-size:12px;line-height:1.6}
-.supp-card{margin-bottom:8px;border-radius:14px;overflow:hidden;transition:all 0.2s}
-.supp-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
-.supp-check{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
-.supp-emoji{font-size:20px}
-.supp-name{font-weight:700;font-size:14px}
-.supp-dose{font-size:11px;color:#888}
-.stars{letter-spacing:2px;font-size:14px}
-.star-on{opacity:1}
-.star-off{opacity:0.2}
-.supp-detail{padding:0 16px 14px;font-size:13px;line-height:1.6}
-.supp-box{padding:12px;border-radius:10px;background:#ffffff06}
-.supp-box+.supp-box{margin-top:8px}
-.supp-box-label{font-weight:700;font-size:11px;margin-bottom:4px}
-.sched-block{margin-top:14px;padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(250,173,20,0.06),rgba(250,173,20,0.02));border:1px solid rgba(250,173,20,0.13)}
-.sched-title{font-size:11px;font-weight:700;color:#faad14;margin-bottom:10px;letter-spacing:0.5px}
-.sched-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
-.sched-row+.sched-row{border-top:1px solid #ffffff08}
-.sched-time{font-size:13px;font-weight:700}
-.sched-items{font-size:12px;color:#ccc}
-.nutr-hero{padding:20px;border-radius:16px;background:linear-gradient(135deg,rgba(255,77,79,0.07),rgba(255,122,69,0.03));border:1px solid rgba(255,77,79,0.13);margin-bottom:16px;text-align:center}
-.nutr-big{font-size:48px;font-weight:800;margin:8px 0 4px;background:linear-gradient(135deg,#af3739,#ca7350);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.macro-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
-.macro-card{padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;text-align:center}
-.macro-label{font-size:10px;color:#888;font-weight:700;letter-spacing:0.5px}
-.macro-val{font-size:24px;font-weight:800;margin:4px 0 2px}
-.macro-sub{font-size:10px;color:#666}
-.calc-box{padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;margin-bottom:12px}
-.calc-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ffffff06;font-size:13px}
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+–bg: #0a0e17;
+–bg-card: #111827;
+–bg-hover: #1e293b;
+–border: #1e293b;
+–text: #e2e8f0;
+–text-dim: #64748b;
+–visited: #10b981;
+–visited-glow: #10b98144;
+–wantto: #f59e0b;
+–wantto-glow: #f59e0b44;
+–accent: #3b82f6;
+–accent-glow: #3b82f644;
+–land: #1e293b;
+–land-stroke: #334155;
+–sea: #0f172a;
+–danger: #ef4444;
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+font-family: ‘Outfit’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+.app {
+display: grid;
+grid-template-columns: 300px 1fr;
+grid-template-rows: auto 1fr;
+min-height: 100vh;
+}
+
+header {
+grid-column: 1 / -1;
+padding: 20px 32px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+border-bottom: 1px solid var(–border);
+background: var(–bg-card);
+}
+
+header h1 {
+font-family: ‘Space Mono’, monospace;
+font-size: 1.4rem;
+font-weight: 700;
+letter-spacing: -0.5px;
+}
+
+header h1 span { color: var(–accent); }
+
+.stats-bar {
+display: flex;
+gap: 24px;
+font-size: 0.85rem;
+}
+
+.stat {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.stat-dot {
+width: 10px;
+height: 10px;
+border-radius: 50%;
+}
+
+.stat-dot.visited { background: var(–visited); box-shadow: 0 0 8px var(–visited-glow); }
+.stat-dot.wantto { background: var(–wantto); box-shadow: 0 0 8px var(–wantto-glow); }
+
+.stat-num {
+font-family: ‘Space Mono’, monospace;
+font-weight: 700;
+font-size: 1rem;
+}
+
+/* Sidebar */
+.sidebar {
+background: var(–bg-card);
+border-right: 1px solid var(–border);
+padding: 20px;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+.user-row {
+display: flex;
+gap: 6px;
+align-items: center;
+}
+
+.user-row select {
+flex: 1;
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 10px;
+color: var(–text);
+font-family: ‘Outfit’, sans-serif;
+font-size: 0.85rem;
+outline: none;
+cursor: pointer;
+appearance: auto;
+}
+
+.user-row select:focus { border-color: var(–accent); }
+
+.user-row input {
+width: 80px;
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 10px;
+color: var(–text);
+font-family: ‘Outfit’, sans-serif;
+font-size: 0.85rem;
+outline: none;
+}
+
+.user-row input:focus { border-color: var(–accent); }
+.user-row input::placeholder { color: var(–text-dim); }
+
+.btn-delete {
+background: var(–danger);
+padding: 8px 10px;
+font-size: 1rem;
+line-height: 1;
+}
+
+.legend-inline {
+display: flex;
+gap: 14px;
+padding: 8px 12px;
+background: var(–bg);
+border-radius: 8px;
+border: 1px solid var(–border);
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 0.75rem;
+color: var(–text-dim);
+white-space: nowrap;
+}
+
+.legend-swatch {
+width: 16px;
+height: 10px;
+border-radius: 2px;
+flex-shrink: 0;
+}
+
+.legend-swatch.visited { background: var(–visited); }
+.legend-swatch.wantto { background: var(–wantto); }
+.legend-swatch.both {
+background: linear-gradient(90deg, var(–visited) 50%, var(–wantto) 50%);
+}
+
+.section-title {
+font-size: 0.7rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1.5px;
+color: var(–text-dim);
+margin-bottom: 8px;
+}
+
+.btn {
+background: var(–accent);
+color: white;
+border: none;
+border-radius: 8px;
+padding: 8px 12px;
+font-family: ‘Outfit’, sans-serif;
+font-weight: 600;
+font-size: 0.85rem;
+cursor: pointer;
+transition: all 0.2s;
+white-space: nowrap;
+}
+
+.btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+/* Country Dropdown */
+.country-dropdown {
+border: 1px solid var(–border);
+border-radius: 8px;
+overflow: hidden;
+background: var(–bg);
+}
+
+.country-dropdown-toggle {
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 12px;
+background: var(–bg);
+border: none;
+color: var(–text);
+font-family: ‘Outfit’, sans-serif;
+font-size: 0.85rem;
+font-weight: 500;
+cursor: pointer;
+transition: background 0.2s;
+}
+
+.country-dropdown-toggle:hover { background: var(–bg-hover); }
+
+.chevron {
+font-size: 0.75rem;
+transition: transform 0.2s;
+color: var(–text-dim);
+}
+
+.chevron.open { transform: rotate(180deg); }
+
+.country-dropdown-content {
+display: none;
+flex-direction: column;
+gap: 2px;
+padding: 4px 6px 6px;
+max-height: 250px;
+overflow-y: auto;
+border-top: 1px solid var(–border);
+}
+
+.country-dropdown-content.open {
+display: flex;
+}
+
+.country-dropdown-content::-webkit-scrollbar { width: 4px; }
+.country-dropdown-content::-webkit-scrollbar-track { background: transparent; }
+.country-dropdown-content::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+
+.country-tag {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 6px 10px;
+border-radius: 6px;
+font-size: 0.8rem;
+background: var(–bg);
+border: 1px solid var(–border);
+}
+
+.country-tag .dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+.country-tag .dot.visited { background: var(–visited); }
+.country-tag .dot.wantto { background: var(–wantto); }
+
+.country-tag .remove-country {
+margin-left: auto;
+background: none;
+border: none;
+color: var(–text-dim);
+cursor: pointer;
+font-size: 0.9rem;
+padding: 0 4px;
+opacity: 0;
+transition: all 0.2s;
+}
+
+.country-tag:hover .remove-country { opacity: 1; }
+.country-tag .remove-country:hover { color: var(–danger); }
+
+/* Map */
+.map-container {
+position: relative;
+overflow: hidden;
+background: var(–sea);
+}
+
+#map {
+width: 100%;
+height: 100%;
+}
+
+.tooltip {
+position: fixed;
+pointer-events: none;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 8px 14px;
+font-size: 0.85rem;
+font-weight: 500;
+box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+z-index: 100;
+opacity: 0;
+transition: opacity 0.15s;
+white-space: nowrap;
+}
+
+.tooltip.visible { opacity: 1; }
+
+.tooltip-status {
+font-size: 0.7rem;
+color: var(–text-dim);
+margin-top: 2px;
+}
+
+.tooltip-users {
+font-size: 0.75rem;
+margin-top: 4px;
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.tooltip-user-line {
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.tooltip-user-dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+}
+
+/* Zoom controls */
+.zoom-controls {
+position: absolute;
+bottom: 20px;
+right: 20px;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+
+.zoom-btn {
+width: 36px;
+height: 36px;
+background: var(–bg-card);
+border: 1px solid var(–border);
+border-radius: 8px;
+color: var(–text);
+font-size: 1.2rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: all 0.2s;
+}
+
+.zoom-btn:hover { background: var(–bg-hover); border-color: var(–accent); }
+
+@media (max-width: 768px) {
+.app {
+grid-template-columns: 1fr;
+grid-template-rows: auto auto 60vh;
+}
+.sidebar {
+max-height: 40vh;
+border-right: none;
+border-bottom: 1px solid var(–border);
+}
+}
 </style>
+
 </head>
 <body>
-<div class="header">
-<div class="title"></div>
-<div</div>
+
+<div class="app">
+  <header>
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-dot visited"></div>
+        <span>War da: <span class="stat-num" id="visitedCount">0</span></span>
+      </div>
+      <div class="stat">
+        <div class="stat-dot wantto"></div>
+        <span>Will hin: <span class="stat-num" id="wanttoCount">0</span></span>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar">
+    <div class="user-row">
+      <select id="userSelect" onchange="selectUser(this.value)"></select>
+      <input type="text" id="newUserInput" placeholder="Neu..." maxlength="20">
+      <button class="btn" onclick="addUser()">+</button>
+      <button class="btn btn-delete" id="deleteUserBtn" onclick="deleteActiveUser()" title="Benutzer löschen">&times;</button>
+    </div>
+
+```
+<div class="legend-inline">
+  <div class="legend-item"><div class="legend-swatch wantto"></div>Will hin</div>
+  <div class="legend-item"><div class="legend-swatch visited"></div>War da</div>
+  <div class="legend-item"><div class="legend-swatch both"></div>Beides</div>
 </div>
 
-<div class="schedule" id="schedule"></div>
-<div class="tabs" id="tabs"></div>
-<div class="content" id="content"></div>
+<div class="country-dropdown">
+  <button class="country-dropdown-toggle" id="countryToggle" onclick="toggleCountryList()">
+    <span id="countryListTitle">Länder</span>
+    <span class="chevron" id="chevron">&#9662;</span>
+  </button>
+  <div class="country-dropdown-content" id="countryList"></div>
+</div>
+```
+
+  </div>
+
+  <div class="map-container">
+    <svg id="map"></svg>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="zoom-controls">
+      <button class="zoom-btn" onclick="zoomIn()">+</button>
+      <button class="zoom-btn" onclick="zoomOut()">−</button>
+      <button class="zoom-btn" onclick="zoomReset()" style="font-size:0.7rem;">&#8634;</button>
+    </div>
+  </div>
+</div>
 
 <script>
-const DAYS=[{name:"Tag A — Drücken & Bauch",emoji:"🔥",focus:"Brust / Trizeps / Schultern / Bauch",exercises:[{name:"Liegestütze (normal)",sets:3,reps:"8–10",muscle:"Brust / Trizeps",desc:"Hände schulterbreit, Körper gerade wie ein Brett. Ziel: 3×10 sauber, dann Pause kürzer machen"},{name:"Liegestütze (Knie)",sets:2,reps:"10–15",muscle:"Brust / Trizeps (Finisher)",desc:"Direkt nach den normalen — auf die Knie gehen und weitermachen bis der Muskel richtig brennt"},{name:"Dips am Stuhl",sets:3,reps:"8–12",muscle:"Trizeps / Brust",desc:"Hände auf Stuhlkante hinter dir, Hintern frei, runter und hochdrücken. Beine angewinkelt = leichter"},{name:"Schulterdrücken an der Wand",sets:2,reps:"5–8",muscle:"Schultern",desc:"Füße an die Wand, Hände am Boden, Kopf Richtung Boden senken. Knie auf dem Boden = leichtere Version"},{name:"Plank (Unterarmstütz)",sets:3,reps:"20–40 Sek",muscle:"ganzer Bauch",desc:"Auf Unterarme und Zehenspitzen stützen, Körper gerade, Bauch anspannen. Aufhören wenn Hüfte durchhängt"},{name:"Knieheben (liegend)",sets:2,reps:"12–15",muscle:"unterer Bauch",desc:"Auf den Rücken legen, Beine angewinkelt zur Brust heben und langsam senken"}]},{name:"Tag B — Ziehen & Bauch",emoji:"💪",focus:"Rücken / Bizeps / Bauch",exercises:[{name:"Klimmzüge (mit Hilfe)",sets:3,reps:"so viele wie gehen",muscle:"Rücken / Bizeps",desc:"An einer Stange hängen, hochziehen bis Kinn über der Stange. Gummiband oder Stuhl als Hilfe ist OK"},{name:"Klimmzüge Untergriff (mit Hilfe)",sets:3,reps:"so viele wie gehen",muscle:"Bizeps / Rücken",desc:"Wie Klimmzüge aber Handflächen zu dir gedreht — trainiert mehr den Bizeps"},{name:"Rudern am Tisch",sets:3,reps:"10–15",muscle:"mittlerer Rücken",desc:"Unter einen stabilen Tisch legen, Tischkante greifen und deine Brust zum Tisch ziehen"},{name:"Tür-Rudern",sets:3,reps:"10–15",muscle:"Rücken / Bizeps",desc:"Offene Tür, beidseitig die Klinke greifen, zurücklehnen und dich zur Tür ziehen"},{name:"Superman (liegend)",sets:3,reps:"12–15",muscle:"unterer Rücken",desc:"Auf den Bauch legen, Arme und Beine gleichzeitig vom Boden anheben und 2 Sek halten"},{name:"Seitlicher Plank",sets:3,reps:"20–30 Sek / Seite",muscle:"seitlicher Bauch",desc:"Auf einem Unterarm seitlich abstützen, Hüfte oben halten, Körper bildet eine Linie"},{name:"Bergsteiger",sets:3,reps:"20 (10 pro Seite)",muscle:"Bauch / Ausdauer",desc:"In Liegestütz-Position abwechselnd ein Knie zur Brust ziehen — wie auf der Stelle laufen"}]},{name:"Tag C — Beine & Bauch",emoji:"🦵",focus:"Oberschenkel / Po / Waden / Bauch",exercises:[{name:"Kniebeugen",sets:4,reps:"15–20",muscle:"Oberschenkel / Po",desc:"Füße schulterbreit, Hintern nach hinten-unten als würdest du dich auf einen Stuhl setzen"},{name:"Ausfallschritte",sets:3,reps:"10 pro Seite",muscle:"Oberschenkel / Po",desc:"Großer Schritt nach vorne, hinteres Knie fast zum Boden, wieder hochdrücken"},{name:"Aufsteiger (Stuhl/Bank)",sets:3,reps:"10 pro Seite",muscle:"Oberschenkel / Po",desc:"Auf einen Stuhl oder eine Bank steigen, ein Bein nach dem anderen, langsam und kontrolliert"},{name:"Beckenheben (Brücke)",sets:3,reps:"15–20",muscle:"Po / hinterer Oberschenkel",desc:"Auf den Rücken legen, Füße aufstellen, Hüfte so hoch wie möglich nach oben drücken"},{name:"Wadenheben",sets:4,reps:"20–25",muscle:"Waden",desc:"Auf eine Treppenstufe stellen, auf die Zehenspitzen hochdrücken und langsam wieder runter"},{name:"Wandsitzen",sets:3,reps:"30–60 Sek",muscle:"Oberschenkel",desc:"Rücken an die Wand, Knie auf 90 Grad, halten als würdest du auf einem unsichtbaren Stuhl sitzen"},{name:"Bauchpresse (Crunch)",sets:3,reps:"15–20",muscle:"oberer Bauch",desc:"Auf den Rücken legen, Knie anwinkeln, Schultern vom Boden heben und Bauch anspannen"}]}];
-
-const SCHEDULE=[{d:"Mo",w:"A",c:"#ff4d4f"},{d:"Di",w:"B",c:"#1890ff"},{d:"Mi",w:"—",c:"#555"},{d:"Do",w:"A",c:"#ff4d4f"},{d:"Fr",w:"C",c:"#52c41a"},{d:"Sa",w:"B",c:"#1890ff"},{d:"So",w:"—",c:"#555"}];
-
-const SUPPS=[
-{name:"Creatin",dose:"5g Pulver (1 Scoop) / Tag",when:"Nach dem Training mit Wasser. An trainingsfreien Tagen: morgens oder mittags. Immer gleiche Uhrzeit.",what:"Gibt deinen Muskeln mehr Energie für kurze, harte Belastungen. Du bist stärker, hast mehr Power und siehst voller aus weil Wasser in die Muskeln gezogen wird. DAS Supplement Nr. 1.",worth:5,emoji:"⚡"},
-{name:"Omega 3 (Fischöl)",dose:"2 Kapseln (2000mg) zum Mittag",when:"Zum Mittagessen — braucht Fett für die Aufnahme.",what:"Gut für Gelenke, Haut-Elastizität und Regeneration. Wirkt entzündungshemmend. Hilft der Haut sich beim Aufbau besser zu dehnen.",worth:4,emoji:"🐟"},
-{name:"Beta Alanin",dose:"2 Kapseln (2500mg) / Tag",when:"Zum Mittag- oder Abendessen. 2500mg reicht als Beginner. Kribbeln ist normal.",what:"Hilft bei langen Sätzen mit vielen Wiederholungen gegen das Brennen im Muskel. Bei kurzen Sätzen weniger Nutzen.",worth:2,emoji:"🔋"},
-{name:"Magnesium",dose:"3 Kapseln (300mg) abends",when:"Zum Abendessen — hilft beim Einschlafen und entspannt die Muskeln.",what:"Wichtig für Muskelkontraktionen, Nerven und Schlaf. Bisglycinat ist die beste Form.",worth:5,emoji:"🌙"},
-{name:"L-Tyrosin",dose:"2 Kapseln (1000mg) morgens",when:"Morgens nüchtern, 15–20 Min vor dem Frühstück. Wirkt in 30–60 Min, hält 2–3h.",what:"Baut Dopamin auf → besserer Fokus und Motivation. Besonders gut wenn du gestresst oder müde bist.",worth:3,emoji:"🧠"},
-{name:"Ashwagandha",dose:"1–2 Kapseln (300–600mg) abends",when:"Zum Abendessen, jeden Tag. Wirkt erst nach 4–8 Wochen. Alle 8 Wochen 2–4 Wochen Pause.",what:"Senkt Cortisol. Besserer Schlaf, bessere Regeneration, kann Testosteron leicht pushen.",worth:4,emoji:"🌿"}
+// ─── State ───
+const COLORS = [
+  '#3b82f6','#8b5cf6','#ec4899','#06b6d4','#f97316',
+  '#84cc16','#14b8a6','#e11d48','#6366f1','#eab308'
 ];
 
-const CAL={bmr:1796,tdee:2425,bulk:2650,protein:140,carbs:340,fats:78};
+let state = {
+  users: [],
+  activeUserId: null
+};
 
-let state={tab:"plan",checkedEx:{},checkedSupp:{},expandedSupp:null,openDay:0,showDesc:{}};
-
-function save(){try{localStorage.setItem("cali",JSON.stringify({checkedEx:state.checkedEx,checkedSupp:state.checkedSupp}))}catch(e){}}
-function load(){try{const d=JSON.parse(localStorage.getItem("cali"));if(d){state.checkedEx=d.checkedEx||{};state.checkedSupp=d.checkedSupp||{}}}catch(e){}}
-load();
-
-function stars(v){return [1,2,3,4,5].map(i=>`<span class="${i<=v?'star-on':'star-off'}">★</span>`).join("")}
-
-function renderSchedule(){
-document.getElementById("schedule").innerHTML=SCHEDULE.map(s=>`<div class="sday" style="background:${s.w!=="—"?s.c+"15":"#ffffff06"};border:1px solid ${s.w!=="—"?s.c+"30":"#ffffff08"}"><div class="sday-label">${s.d}</div><div class="sday-val" style="color:${s.c}">${s.w}</div></div>`).join("")}
-
-function renderTabs(){
-const sc=Object.values(state.checkedSupp).filter(Boolean).length;
-document.getElementById("tabs").innerHTML=[
-{id:"plan",label:"Training",icon:"🏋️"},
-{id:"supps",label:"Supps",icon:"💊"},
-{id:"nutrition",label:"Ernährung",icon:"🍗"}
-].map(t=>`<button class="tab ${state.tab===t.id?'tab-active':'tab-inactive'}" onclick="setTab('${t.id}')">${t.icon} ${t.label}${t.id==="supps"&&sc>0?`<span class="badge">${sc}/6</span>`:""}</button>`).join("")}
-
-function setTab(t){state.tab=t;renderTabs();renderContent()}
-
-function toggleEx(k){state.checkedEx[k]=!state.checkedEx[k];save();renderContent()}
-function toggleSupp(k){state.checkedSupp[k]=!state.checkedSupp[k];save();renderContent()}
-function toggleDesc(k){state.showDesc[k]=!state.showDesc[k];renderContent()}
-function setOpenDay(d){state.openDay=d;renderContent()}
-function toggleExpandSupp(i){state.expandedSupp=state.expandedSupp===i?null:i;renderContent()}
-
-function renderContent(){
-
-const el=document.getElementById("content");
-if(state.tab==="plan") renderPlan(el);
-else if(state.tab==="supps") renderSupps(el);
-else renderNutrition(el);
+// ─── Storage ───
+function save() {
+  try {
+    localStorage.setItem('travel-tracker', JSON.stringify(state));
+  } catch(e) {}
 }
 
-function renderPlan(el){
-let h=`<p style="font-size:12px;color:#666;margin:0 0 12px;line-height:1.5">5x/Woche · Beginner-freundlich · Tippe auf eine Übung für die Erklärung ▾</p>`;
-DAYS.forEach((day,di)=>{
-const isOpen=state.openDay===di;
-const done=day.exercises.filter((_,ei)=>state.checkedEx[di+"-"+ei]).length;
-const total=day.exercises.length;
-h+=`<div class="day-card"><button class="day-header" onclick="setOpenDay(${isOpen?-1:di})"><div><div class="day-title">${day.emoji} ${day.name}</div><div class="day-focus">${day.focus}</div></div><div class="day-count" style="background:${done===total?"#52c41a20":"#ffffff08"};color:${done===total?"#52c41a":"#888"}">${done}/${total}</div></button>`;
-if(isOpen){
-h+=`<div style="padding:0 16px 14px">`;
-day.exercises.forEach((ex,ei)=>{
-const k=di+"-"+ei;
-const d=state.checkedEx[k];
-const dOpen=state.showDesc[k];
-h+=`<div style="border-top:1px solid #ffffff08"><div class="ex-row ${d?'ex-done':''}" style="opacity:${d?0.4:1}"><div class="check ${d?'check-on':''}" onclick="event.stopPropagation();toggleEx('${k}')">${d?"✓":""}</div><div style="flex:1" onclick="toggleDesc('${k}')"><div class="ex-name ${d?'ex-name-done':''}">${ex.name}</div><div class="ex-muscle">${ex.muscle}</div></div><div class="ex-reps">${ex.sets}×${ex.reps}</div><div class="ex-arrow ${dOpen?'ex-arrow-open':''}" onclick="toggleDesc('${k}')">▾</div></div>`;
-if(dOpen) h+=`<div class="ex-desc">💡 ${ex.desc}</div>`;
-h+=`</div>`;
-});
-h+=`</div>`}
-h+=`</div>`;
-});
-h+=`<div class="tip" style="background:linear-gradient(135deg,#ff4d4f10,#ff7a4510);border:1px solid #ff4d4f20;color:#ccc"><strong style="color:#ff7a45">Beginner-Tipp:</strong> Schaffst du keine normale Liegestütze? Mach die Knie-Version bis du 15 Stück schaffst, dann wechsel auf normale. Gleiches Prinzip überall: Wenn du die Ziel-Reps schaffst → schwerere Variante nehmen.</div>`;
-el.innerHTML=h;
+function load() {
+  try {
+    const d = localStorage.getItem('travel-tracker');
+    if (d) {
+      state = JSON.parse(d);
+      if (!state.users) state.users = [];
+    }
+  } catch(e) {}
 }
 
-function renderSupps(el){
-let h=`<p style="font-size:12px;color:#666;margin:0 0 12px;line-height:1.5">Checkbox = genommen heute · Tap auf Karte = Details</p>`;
-SUPPS.forEach((s,i)=>{
-const checked=state.checkedSupp[i];
-const expanded=state.expandedSupp===i;
-h+=`<div class="supp-card" style="background:${checked?"#52c41a08":"#ffffff06"};border:1px solid ${checked?"#52c41a25":"#ffffff0a"}"><div class="supp-header" onclick="toggleExpandSupp(${i})"><div class="supp-check" onclick="event.stopPropagation();toggleSupp(${i})" style="border:${checked?"none":"2px solid #444"};background:${checked?"linear-gradient(135deg,#52c41a,#73d13d)":"transparent"}">${checked?"✓":""}</div><span class="supp-emoji">${s.emoji}</span><div style="flex:1"><div class="supp-name">${s.name}</div><div class="supp-dose">${s.dose}</div></div><span class="stars">${stars(s.worth)}</span></div>`;
-if(expanded){
-h+=`<div class="supp-detail"><div class="supp-box"><div class="supp-box-label" style="color:#ff7a45">WAS ES MACHT</div><div style="color:#ccc">${s.what}</div></div><div class="supp-box"><div class="supp-box-label" style="color:#1890ff">WANN NEHMEN</div><div style="color:#ccc">${s.when}</div></div></div>`;
-}
-h+=`</div>`;
-});
-// Daily schedule
-h+=`<div class="sched-block"><div class="sched-title">TÄGLICHER EINNAHMEPLAN</div>`;
-[{t:"🌅 Morgens nüchtern",i:"2x L-Tyrosin",c:"#faad14"},{t:"🍽️ Mittag",i:"2x Omega 3 + 2x Beta Alanin",c:"#52c41a"},{t:"🏋️ Nach Training",i:"5g Creatin mit Wasser",c:"#1890ff"},{t:"🌙 Abendessen",i:"3x Magnesium + 1x Ashwagandha",c:"#ff4d4f"}].forEach((s,i)=>{
-h+=`<div class="sched-row"><span class="sched-time" style="color:${s.c}">${s.t}</span><span class="sched-items">${s.i}</span></div>`;
-});
-h+=`</div>`;
-// Ranking
-h+=`<div style="margin-top:14px;padding:14px;border-radius:12px;background:#ffffff06;border:1px solid #ffffff0a;font-size:12px;color:#999;line-height:1.6"><strong style="color:#e8e6e3">Ranking:</strong><br>⚡ Creatin & 🌙 Magnesium → Pflicht (5/5)<br>🐟 Omega 3 & 🌿 Ashwagandha → sehr sinnvoll (4/5)<br>🧠 L-Tyrosin → nett, kein Muss (3/5)<br>🔋 Beta Alanin → für Beginner kaum Nutzen (2/5)<br><span style="color:#666;margin-top:6px;display:block">Starte erstmal mit Creatin + Magnesium + Omega 3. Den Rest später dazunehmen.</span></div>`;
-el.innerHTML=h;
+// ─── User Management ───
+function addUser() {
+  const input = document.getElementById('newUserInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (state.users.some(u => u.name.toLowerCase() === name.toLowerCase())) return;
+
+  const user = {
+    id: Date.now().toString(36),
+    name,
+    color: COLORS[state.users.length % COLORS.length],
+    visited: [],
+    wantto: []
+  };
+
+  state.users.push(user);
+  state.activeUserId = user.id;
+  input.value = '';
+  save();
+  renderAll();
 }
 
-function renderNutrition(el){
-let h=`<div class="nutr-hero"><div style="font-size:11px;color:#888;letter-spacing:1px;font-weight:700">TÄGLICHES ZIEL (LEAN BULK)</div><div class="nutr-big">${CAL.bulk}</div><div style="font-size:13px;color:#888">kcal / Tag</div></div>`;
-h+=`<div class="macro-grid">`;
-[{l:"Eiweiß",v:CAL.protein+"g",c:"#ff4d4f",s:"2g/kg"},{l:"Kohlenhydrate",v:CAL.carbs+"g",c:"#ff7a45",s:"~54%"},{l:"Fett",v:CAL.fats+"g",c:"#faad14",s:"~26%"}].forEach(m=>{
-h+=`<div class="macro-card"><div class="macro-label">${m.l}</div><div class="macro-val" style="color:${m.c}">${m.v}</div><div class="macro-sub">${m.s}</div></div>`;
-});
-h+=`</div>`;
-h+=`<div class="calc-box"><div style="font-size:11px;color:#888;font-weight:700;margin-bottom:8px">BERECHNUNG</div>`;
-[{l:"Grundumsatz (BMR)",v:CAL.bmr+" kcal"},{l:"Gesamtumsatz (TDEE)",v:CAL.tdee+" kcal"},{l:"Überschuss (+225)",v:CAL.bulk+" kcal"}].forEach(r=>{
-h+=`<div class="calc-row"><span style="color:#999">${r.l}</span><span style="font-weight:700">${r.v}</span></div>`;
-});
-h+=`</div>`;
-h+=`<div style="padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(24,144,255,0.06),rgba(24,144,255,0.02));border:1px solid rgba(24,144,255,0.13);font-size:12px;color:#ccc;line-height:1.6"><strong style="color:#1890ff">Aufbau ohne Dehnungsstreifen:</strong> Surplus bewusst kleiner gehalten (+225 statt +400). Ziel: max 0.3kg/Woche — langsam aber sauber aufbauen. Dazu hilft: viel Wasser trinken (3L+), Omega 3 für die Haut, und Haut regelmäßig eincremen (Bodylotion mit Vitamin E oder Kokosöl).</div>`;
-el.innerHTML=h;
+function selectUser(id) {
+  state.activeUserId = id;
+  save();
+  renderAll();
 }
 
-renderSchedule();
-renderTabs();
-renderContent();
+function getActiveUser() {
+  return state.users.find(u => u.id === state.activeUserId) || null;
+}
+
+// ─── Map ───
+const svg = d3.select('#map');
+const g = svg.append('g');
+const projection = d3.geoMercator().scale(150).translate([480, 320]);
+const path = d3.geoPath().projection(projection);
+const tooltip = document.getElementById('tooltip');
+
+const zoom = d3.zoom()
+  .scaleExtent([1, 12])
+  .on('zoom', (e) => g.attr('transform', e.transform));
+
+svg.call(zoom);
+
+function zoomIn() { svg.transition().duration(300).call(zoom.scaleBy, 1.5); }
+function zoomOut() { svg.transition().duration(300).call(zoom.scaleBy, 0.67); }
+function zoomReset() { svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity); }
+
+// Country name mapping
+const NAME_MAP = {
+  'United States of America': 'USA',
+  'United Kingdom': 'UK',
+  'Czech Republic': 'Tschechien',
+  'Czechia': 'Tschechien',
+};
+
+let worldData = null;
+
+async function loadMap() {
+  const resp = await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json');
+  const world = await resp.json();
+  worldData = topojson.feature(world, world.objects.countries);
+
+  g.append('g')
+    .selectAll('path')
+    .data(worldData.features)
+    .enter()
+    .append('path')
+    .attr('d', path)
+    .attr('class', 'country')
+    .attr('fill', 'var(--land)')
+    .attr('stroke', 'var(--land-stroke)')
+    .attr('stroke-width', 0.5)
+    .style('cursor', 'pointer')
+    .style('transition', 'fill 0.2s')
+    .on('click', (e, d) => handleCountryClick(d))
+    .on('mouseover', (e, d) => showTooltip(e, d))
+    .on('mousemove', (e) => moveTooltip(e))
+    .on('mouseout', hideTooltip);
+
+  // Initial data
+  load();
+  if (!state.users.length) {
+    // Pre-populate with Cedric's data
+    const cedric = {
+      id: 'cedric',
+      name: 'Cedric',
+      color: COLORS[0],
+      visited: ['Malta','Cyprus','Italy','Austria','Indonesia','Estonia','Japan','Taiwan','Portugal','Spain','France'],
+      wantto: ['Thailand','Croatia','Greece','South Korea','Iceland']
+    };
+    state.users.push(cedric);
+    state.activeUserId = 'cedric';
+    save();
+  }
+  renderAll();
+
+  // Resize
+  const resize = () => {
+    const container = document.querySelector('.map-container');
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    svg.attr('viewBox', `0 0 ${Math.max(w, 960)} ${Math.max(h, 600)}`);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+}
+
+function handleCountryClick(d) {
+  const user = getActiveUser();
+  if (!user) { alert('Bitte zuerst einen Benutzer anlegen!'); return; }
+
+  const name = d.properties.name;
+  const inWantto = user.wantto.includes(name);
+  const inVisited = user.visited.includes(name);
+
+  if (!inWantto && !inVisited) {
+    // Click 1: → will hin
+    user.wantto.push(name);
+  } else if (inWantto) {
+    // Click 2: will hin → war da
+    user.wantto.splice(user.wantto.indexOf(name), 1);
+    user.visited.push(name);
+  } else if (inVisited) {
+    // Click 3: war da → weg
+    user.visited.splice(user.visited.indexOf(name), 1);
+  }
+
+  save();
+  renderAll();
+}
+
+function getCountryStatus(name) {
+  const result = { visitedBy: [], wanttoBy: [] };
+  state.users.forEach(u => {
+    if (u.visited.includes(name)) result.visitedBy.push(u);
+    if (u.wantto.includes(name)) result.wanttoBy.push(u);
+  });
+  return result;
+}
+
+function showTooltip(e, d) {
+  const name = d.properties.name;
+  const status = getCountryStatus(name);
+
+  let html = `<strong>${name}</strong>`;
+
+  if (status.visitedBy.length || status.wanttoBy.length) {
+    html += '<div class="tooltip-users">';
+    status.visitedBy.forEach(u => {
+      html += `<div class="tooltip-user-line">
+        <div class="tooltip-user-dot" style="background:var(--visited)"></div>
+        ${u.name} — war da
+      </div>`;
+    });
+    status.wanttoBy.forEach(u => {
+      html += `<div class="tooltip-user-line">
+        <div class="tooltip-user-dot" style="background:var(--wantto)"></div>
+        ${u.name} — will hin
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += '<div class="tooltip-status">Nicht markiert</div>';
+  }
+
+  tooltip.innerHTML = html;
+  tooltip.classList.add('visible');
+  moveTooltip(e);
+}
+
+function moveTooltip(e) {
+  tooltip.style.left = (e.clientX + 16) + 'px';
+  tooltip.style.top = (e.clientY - 10) + 'px';
+}
+
+function hideTooltip() {
+  tooltip.classList.remove('visible');
+}
+
+// ─── Render ───
+function renderAll() {
+  renderUsers();
+  renderMap();
+  renderCountryList();
+  renderStats();
+}
+
+function renderUsers() {
+  const sel = document.getElementById('userSelect');
+  sel.innerHTML = state.users.map(u => {
+    const total = u.visited.length + u.wantto.length;
+    const selected = u.id === state.activeUserId ? 'selected' : '';
+    return `<option value="${u.id}" ${selected}>${u.name} (${total})</option>`;
+  }).join('');
+  if (!state.users.length) {
+    sel.innerHTML = '<option value="">— Kein Benutzer —</option>';
+  }
+  document.getElementById('deleteUserBtn').style.display = state.users.length ? '' : 'none';
+}
+
+function deleteActiveUser() {
+  const user = getActiveUser();
+  if (!user) return;
+  if (!confirm(`"${user.name}" wirklich löschen?`)) return;
+  state.users = state.users.filter(u => u.id !== user.id);
+  state.activeUserId = state.users.length ? state.users[0].id : null;
+  save();
+  renderAll();
+}
+
+function renderMap() {
+  g.selectAll('.country')
+    .attr('fill', function(d) {
+      const name = d.properties.name;
+      const status = getCountryStatus(name);
+
+      if (status.visitedBy.length && status.wanttoBy.length) {
+        return '#0d9488'; // teal for both
+      } else if (status.visitedBy.length) {
+        return 'var(--visited)';
+      } else if (status.wanttoBy.length) {
+        return 'var(--wantto)';
+      }
+      return 'var(--land)';
+    })
+    .attr('stroke-width', function(d) {
+      const name = d.properties.name;
+      const status = getCountryStatus(name);
+      return (status.visitedBy.length || status.wanttoBy.length) ? 1 : 0.5;
+    });
+}
+
+function toggleCountryList() {
+  const content = document.getElementById('countryList');
+  const chevron = document.getElementById('chevron');
+  content.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+function renderCountryList() {
+  const user = getActiveUser();
+  const title = document.getElementById('countryListTitle');
+  const list = document.getElementById('countryList');
+
+  if (!user) {
+    title.textContent = 'Länder (0)';
+    list.innerHTML = '';
+    return;
+  }
+
+  const items = [
+    ...user.wantto.sort().map(c => ({ name: c, type: 'wantto' })),
+    ...user.visited.sort().map(c => ({ name: c, type: 'visited' }))
+  ];
+
+  title.textContent = `${user.name} — ${items.length} Länder`;
+
+  if (!items.length) {
+    list.innerHTML = '<div style="color:var(--text-dim);font-size:0.8rem;padding:8px;">Klicke auf Länder in der Karte</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(item => `
+    <div class="country-tag">
+      <div class="dot ${item.type}"></div>
+      <span>${item.name}</span>
+      <button class="remove-country" onclick="removeCountry('${item.name}','${item.type}')" title="Entfernen">&times;</button>
+    </div>
+  `).join('');
+}
+
+function removeCountry(name, type) {
+  const user = getActiveUser();
+  if (!user) return;
+  const idx = user[type].indexOf(name);
+  if (idx > -1) user[type].splice(idx, 1);
+  save();
+  renderAll();
+}
+
+function renderStats() {
+  const user = getActiveUser();
+  document.getElementById('visitedCount').textContent = user ? user.visited.length : 0;
+  document.getElementById('wanttoCount').textContent = user ? user.wantto.length : 0;
+}
+
+// ─── Init ───
+document.getElementById('newUserInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addUser();
+});
+
+loadMap();
 </script>
+
 </body>
 </html>
+
+
